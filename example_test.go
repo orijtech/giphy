@@ -1,10 +1,18 @@
-# giphy
-Giphy API client in Go
+// Copyright 2017 orijtech. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-## Samples
-### Preamble
-```go
-package main
+package giphy_test
 
 import (
 	"fmt"
@@ -12,11 +20,8 @@ import (
 
 	"github.com/orijtech/giphy/v1"
 )
-```
 
-* Trending gifs
-```go
-func latestTrending() {
+func Example_client_Trending() {
 	client, err := giphy.NewClientFromEnvOrDefault()
 	if err != nil {
 		log.Fatal(err)
@@ -41,11 +46,8 @@ func latestTrending() {
 		}
 	}
 }
-```
 
-* Search for gifs
-```go
-func searchForGIFS() {
+func Example_client_Search() {
 	client, err := giphy.NewClientFromEnvOrDefault()
 	if err != nil {
 		log.Fatal(err)
@@ -76,11 +78,8 @@ func searchForGIFS() {
 		fmt.Printf("\n\n")
 	}
 }
-```
 
-* Random GIF
-```go
-func randomGIF() {
+func Example_client_RandomGIF() {
 	client, err := giphy.NewClientFromEnvOrDefault()
 	if err != nil {
 		log.Fatal(err)
@@ -95,11 +94,8 @@ func randomGIF() {
 	}
 	fmt.Printf("Your giph: %#v\n", giph)
 }
-```
 
-* GIF by ID
-```go
-func gifByID() {
+func Example_client_GIFByID() {
 	client, err := giphy.NewClientFromEnvOrDefault()
 	if err != nil {
 		log.Fatal(err)
@@ -111,11 +107,8 @@ func gifByID() {
 	}
 	fmt.Printf("The retrieved giph: %#v\n", giph)
 }
-```
 
-* Trending stickers
-```go
-func trendingStickers() {
+func Example_client_TrendingStickers() {
 	client, err := giphy.NewClientFromEnvOrDefault()
 	if err != nil {
 		log.Fatal(err)
@@ -140,11 +133,8 @@ func trendingStickers() {
 		}
 	}
 }
-```
 
-* Search for stickers
-```go
-func searchStickers() {
+func Example_client_SearchStickers() {
 	client, err := giphy.NewClientFromEnvOrDefault()
 	if err != nil {
 		log.Fatal(err)
@@ -175,4 +165,3 @@ func searchStickers() {
 		fmt.Printf("\n\n")
 	}
 }
-```
