@@ -15,6 +15,7 @@
 package giphy
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -27,6 +28,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/trace"
 
 	"github.com/orijtech/otils"
 )
@@ -86,6 +90,7 @@ type Giph struct {
 	Type        string `json:"type,omitempty"`
 	ID          string `json:"id,omitempty"`
 	Slug        string `json:"slug,omitempty"`
+	URL         string `json:"url,omitempty"`
 	BitlyURL    string `json:"bitly_url,omitempty"`
 	BitlyGIFURL string `json:"bitly_gif_url,omitempty"`
 	EmbedURL    string `json:"embed_url,omitempty"`
@@ -188,7 +193,7 @@ func (c *Client) httpClient() *http.Client {
 	defer c.RUnlock()
 
 	rt := c.rt
-	return &http.Client{Transport: rt}
+	return &http.Client{Transport: &ochttp.Transport{Base: rt}}
 }
 
 func (c *Client) _apiKey() string {
@@ -259,15 +264,24 @@ type giphWrap struct {
 	Giph *Giph `json:"data"`
 }
 
-func (c *Client) RandomSticker(req *Request) (*Giph, error) {
-	return c.randomGIF(req, "/stickers/random")
+func (c *Client) RandomSticker(ctx context.Context, req *Request) (*Giph, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).RandomStickers")
+	defer span.End()
+
+	return c.randomGIF(ctx, req, "/stickers/random")
 }
 
-func (c *Client) RandomGIF(req *Request) (*Giph, error) {
-	return c.randomGIF(req, "/gifs/random")
+func (c *Client) RandomGIF(ctx context.Context, req *Request) (*Giph, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).RandomGIF")
+	defer span.End()
+
+	return c.randomGIF(ctx, req, "/gifs/random")
 }
 
-func (c *Client) randomGIF(req *Request, route string) (*Giph, error) {
+func (c *Client) randomGIF(ctx context.Context, req *Request, route string) (*Giph, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).randomGIF")
+	defer span.End()
+
 	if req == nil {
 		req = new(Request)
 	}
@@ -282,15 +296,18 @@ func (c *Client) randomGIF(req *Request, route string) (*Giph, error) {
 	}
 	qv.Set("api_key", c._apiKey())
 	theURL := fmt.Sprintf("%s%s?%s", baseURL, route, qv.Encode())
-	return c.fetchGIF(theURL)
+	return c.fetchGIF(ctx, theURL)
 }
 
-func (c *Client) fetchGIF(theURL string) (*Giph, error) {
+func (c *Client) fetchGIF(ctx context.Context, theURL string) (*Giph, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).fetchGIF")
+	defer span.End()
+
 	httpReq, err := http.NewRequest("GET", theURL, nil)
 	if err != nil {
 		return nil, err
 	}
-	slurp, _, err := c.doHTTPReq(httpReq)
+	slurp, _, err := c.doHTTPReq(ctx, httpReq)
 	if err != nil {
 		return nil, err
 	}
@@ -304,30 +321,48 @@ func (c *Client) fetchGIF(theURL string) (*Giph, error) {
 	return gWrap.Giph, nil
 }
 
-func (c *Client) GIFByID(id string) (*Giph, error) {
+func (c *Client) GIFByID(ctx context.Context, id string) (*Giph, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).GIFByID")
+	defer span.End()
+
 	qv := make(url.Values)
 	qv.Set("api_key", c._apiKey())
 	theURL := fmt.Sprintf("%s/gifs/%s?%s", baseURL, id, qv.Encode())
-	return c.fetchGIF(theURL)
+	return c.fetchGIF(ctx, theURL)
 }
 
-func (c *Client) Trending(req *Request) (*ResponsePager, error) {
-	return c.fetch(req, "/gifs/trending")
+func (c *Client) Trending(ctx context.Context, req *Request) (*ResponsePager, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).Trending")
+	defer span.End()
+
+	return c.fetch(ctx, req, "/gifs/trending")
 }
 
-func (c *Client) TrendingStickers(req *Request) (*ResponsePager, error) {
-	return c.fetch(req, "/stickers/trending")
+func (c *Client) TrendingStickers(ctx context.Context, req *Request) (*ResponsePager, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).TrendingStickers")
+	defer span.End()
+
+	return c.fetch(ctx, req, "/stickers/trending")
 }
 
-func (c *Client) SearchStickers(req *Request) (*ResponsePager, error) {
-	return c.fetch(req, "/stickers/search")
+func (c *Client) SearchStickers(ctx context.Context, req *Request) (*ResponsePager, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).SearchStickers")
+	defer span.End()
+
+	return c.fetch(ctx, req, "/stickers/search")
 }
 
-func (c *Client) Search(req *Request) (*ResponsePager, error) {
-	return c.fetch(req, "/gifs/search")
+func (c *Client) Search(ctx context.Context, req *Request) (*ResponsePager, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).Search")
+	defer span.End()
+
+	return c.fetch(ctx, req, "/gifs/search")
 }
 
-func (c *Client) fetch(req *Request, route string) (*ResponsePager, error) {
+func (c *Client) fetch(ctx context.Context, req *Request, route string) (*ResponsePager, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).fetch")
+	defer span.End()
+
 	if req == nil {
 		req = new(Request)
 	}
@@ -383,7 +418,9 @@ func (c *Client) fetch(req *Request, route string) (*ResponsePager, error) {
 				pagesChan <- page
 				return
 			}
-			slurp, _, err := c.doHTTPReq(req)
+			cctx, span := trace.StartSpan(ctx, "paging")
+			slurp, _, err := c.doHTTPReq(cctx, req)
+			span.End()
 			if err != nil {
 				page.Err = err
 				pagesChan <- page
@@ -423,7 +460,11 @@ func (c *Client) fetch(req *Request, route string) (*ResponsePager, error) {
 	return &ResponsePager{Pages: pagesChan, Cancel: cancelFn}, nil
 }
 
-func (c *Client) doHTTPReq(req *http.Request) ([]byte, http.Header, error) {
+func (c *Client) doHTTPReq(ctx context.Context, req *http.Request) ([]byte, http.Header, error) {
+	ctx, span := trace.StartSpan(ctx, "giphy/v1.(*Client).doHTTPReq")
+	defer span.End()
+	req = req.WithContext(ctx)
+
 	res, err := c.httpClient().Do(req)
 	if err != nil {
 		return nil, nil, err
@@ -438,7 +479,9 @@ func (c *Client) doHTTPReq(req *http.Request) ([]byte, http.Header, error) {
 		return nil, res.Header, errors.New(res.Status)
 	}
 
+	_, span2 := trace.StartSpan(ctx, "giphy/v1.(*Client).doHTTPReq.ReadAll.Body")
 	slurp, err := ioutil.ReadAll(res.Body)
+	span2.End()
 	return slurp, res.Header, err
 }
 

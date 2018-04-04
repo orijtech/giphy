@@ -15,6 +15,7 @@
 package giphy_test
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -27,7 +28,7 @@ func Example_client_Trending() {
 		log.Fatal(err)
 	}
 
-	res, err := client.Trending(&giphy.Request{
+	res, err := client.Trending(context.Background(), &giphy.Request{
 		MaxPageNumber: 4,
 	})
 	if err != nil {
@@ -40,7 +41,7 @@ func Example_client_Trending() {
 			continue
 		}
 
-		log.Printf("PageNumber: %#d\n", page.PageNumber)
+		log.Printf("PageNumber: #%d\n", page.PageNumber)
 		for i, giph := range page.Giphs {
 			log.Printf("\t%d: %#v\tSizes: %#v\n", i, giph, giph.Sizes)
 		}
@@ -53,7 +54,7 @@ func Example_client_Search() {
 		log.Fatal(err)
 	}
 
-	res, err := client.Search(&giphy.Request{
+	res, err := client.Search(context.Background(), &giphy.Request{
 		MaxPageNumber: 4,
 
 		Query: "Milly Rock",
@@ -68,7 +69,7 @@ func Example_client_Search() {
 			continue
 		}
 
-		fmt.Printf("PageNumber: %#d\n", page.PageNumber)
+		fmt.Printf("PageNumber: #%d\n", page.PageNumber)
 		for _, giph := range page.Giphs {
 			fmt.Printf("\tDescription: %v\n", giph)
 			for size, detail := range giph.Sizes {
@@ -85,7 +86,7 @@ func Example_client_RandomGIF() {
 		log.Fatal(err)
 	}
 
-	giph, err := client.RandomGIF(&giphy.Request{
+	giph, err := client.RandomGIF(context.Background(), &giphy.Request{
 		Tag:    "netflix",
 		Rating: giphy.RatingPG,
 	})
@@ -101,7 +102,7 @@ func Example_client_GIFByID() {
 		log.Fatal(err)
 	}
 
-	giph, err := client.GIFByID("3ohze2UfcItWPUFqbm")
+	giph, err := client.GIFByID(context.Background(), "3ohze2UfcItWPUFqbm")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -114,7 +115,7 @@ func Example_client_TrendingStickers() {
 		log.Fatal(err)
 	}
 
-	res, err := client.TrendingStickers(&giphy.Request{
+	res, err := client.TrendingStickers(context.Background(), &giphy.Request{
 		MaxPageNumber: 4,
 	})
 	if err != nil {
@@ -127,7 +128,7 @@ func Example_client_TrendingStickers() {
 			continue
 		}
 
-		log.Printf("PageNumber: %#d\n", page.PageNumber)
+		log.Printf("PageNumber: #%d\n", page.PageNumber)
 		for i, giph := range page.Giphs {
 			log.Printf("\t%d: %#v\tSizes: %#v\n", i, giph, giph.Sizes)
 		}
@@ -140,7 +141,7 @@ func Example_client_SearchStickers() {
 		log.Fatal(err)
 	}
 
-	res, err := client.SearchStickers(&giphy.Request{
+	res, err := client.SearchStickers(context.Background(), &giphy.Request{
 		MaxPageNumber: 4,
 		Query:         "Gotham City",
 		Language:      giphy.LangChineseTraditional,
@@ -155,7 +156,7 @@ func Example_client_SearchStickers() {
 			continue
 		}
 
-		fmt.Printf("PageNumber: %#d\n", page.PageNumber)
+		fmt.Printf("PageNumber: #%d\n", page.PageNumber)
 		for _, giph := range page.Giphs {
 			fmt.Printf("\tDescription: %v\n", giph)
 			for size, detail := range giph.Sizes {

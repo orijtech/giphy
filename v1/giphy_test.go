@@ -15,6 +15,7 @@
 package giphy_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -48,7 +49,7 @@ func TestTrending(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		res, err := client.Trending(tt.req)
+		res, err := client.Trending(context.Background(), tt.req)
 		if tt.wantErr {
 			if err == nil {
 				t.Errorf("#%d: want non-nil error", i)
@@ -95,7 +96,7 @@ func TestTrendingStickers(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		res, err := client.TrendingStickers(tt.req)
+		res, err := client.TrendingStickers(context.Background(), tt.req)
 		if tt.wantErr {
 			if err == nil {
 				t.Errorf("#%d: want non-nil error", i)
